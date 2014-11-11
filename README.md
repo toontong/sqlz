@@ -56,7 +56,7 @@ Ouput
 ---
 	{"End": "2014-11-11T17:41:39.0728559+08:00",
 	 "Error": 1,
-	 "Opration": {"CREATE": {"TableCount": {"": 1}},
+	 "Opration": {"CREATE": {"TableCount": {"t1": 1}},
 	              "DELETE": {"TableCount": {"t1": 1}},
 	              "DROP": {"TableCount": {"t1": 1}},
 	              "INSERT": {"TableCount": {"t1": 1}},
@@ -71,3 +71,5 @@ Ouput
 Status:
 ---
 Stable
+
+but nut support **drop tables tb1,tb2 ...** SQL. Just statistics the tb1, not include tb2.

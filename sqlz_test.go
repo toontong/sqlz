@@ -15,6 +15,8 @@ func TestSQLZ(t *testing.T) {
 		expectType SQL_Type
 	}{
 		{"create table sql.", "create table t1(id int, val int)", CREATE},
+		{"alter table sql.", "alter table t1 t2", ALTER},
+		{"drop table sql.", "drop table t1 t2", ALTER},
 		{"select sql.", "select * from t1 where id = 2", SELECT},
 		{"select sql.", "select * from t1,t2 where id = 2", SELECT},
 		{"insert sql.", "inSERT INTO t1(id, val) values(123,456),(678,90)", INSERT},

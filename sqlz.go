@@ -193,19 +193,25 @@ func (res *StatusResult) analyze(stmt sqlparser.Statement) {
 		res.addOpration(SHOW, sql.Section)
 	case *sqlparser.DDL:
 		var typ SQL_Type
+		var tableName []byte
 		switch sql.Action {
 		case sqlparser.AST_CREATE:
 			typ = CREATE
+			tableName = sql.NewName
 		case sqlparser.AST_RENAME:
 			typ = RENAME
+			tableName = sql.Table
 		case sqlparser.AST_DROP:
 			typ = DROP
+			tableName = sql.Table
 		case sqlparser.AST_ALTER:
 			typ = ALTER
+			tableName = sql.Table
 		default:
 			typ = UNKNOW
 		}
-		res.addOpration(typ, string(sql.Table))
+		println(typ, string(tableName), sql.NewName)
+		res.addOpration(typ, string(tableName))
 	case nil:
 		res.addOpration(ERROR_SQL, "nil")
 	default:
