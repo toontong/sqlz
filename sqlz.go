@@ -210,7 +210,6 @@ func (res *StatusResult) analyze(stmt sqlparser.Statement) {
 		default:
 			typ = UNKNOW
 		}
-		println(typ, string(tableName), sql.NewName)
 		res.addOpration(typ, string(tableName))
 	case nil:
 		res.addOpration(ERROR_SQL, "nil")
