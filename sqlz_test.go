@@ -1,45 +1,48 @@
 package sqlz
 
 import (
-	"log"
-	"os"
+	"encoding/json"
 	"testing"
+	"time"
+
+	// "sqlz/sqlparser"
 )
 
-var (
-	user      string
-	pass      string
-	prot      string
-	addr      string
-	dbname    string
-	dsn       string
-	netAddr   string
-	available bool
-)
-
-var logger = log.New(os.Stdout, "sqlz", log.Lshortfile|log.LstdFlags)
-
-// See https://github.com/go-sql-driver/mysql/wiki/Testing
-func init() {
-	// get environment variables
-	env := func(key, defaultValue string) string {
-		if value := os.Getenv(key); value != "" {
-			return value
-		}
-		return defaultValue
+func TestSQLZ(t *testing.T) {
+	tcases := []struct {
+		desc       string
+		query      string
+		expectType SQL_Type
+	}{
+		{"create table sql.", "create table t1(id int, val int)", CREATE},
+		{"select sql.", "select * from t1 where id = 2", SELECT},
+		{"select sql.", "select * from t1,t2 where id = 2", SELECT},
+		{"insert sql.", "inSERT INTO t1(id, val) values(123,456),(678,90)", INSERT},
+		{"delete sql.", "delete from t1 where id=3", DELETE},
+		{"delete sql.", "delete from T1 where id=1", DELETE},
+		{"delete sql.", "delete from `t222` where id=1", DELETE},
+		{"update sql.", "update t1 set val=333 where id=1", UPDATE},
+		{"drop table sql.", "drop table t1", DROP},
+		{"show tables", "show tables", SHOW},
+		{"error sql", "error sql", ERROR_SQL},
+		{"unknow sql", "set @@a=1", UNKNOW},
 	}
-	user = env("MYSQL_TEST_USER", "qing")
-	pass = env("MYSQL_TEST_PASS", "admin")
-	prot = env("MYSQL_TEST_PROT", "tcp")
-	addr = env("MYSQL_TEST_ADDR", "10.20.187.81:3306")
-	dbname = env("MYSQL_TEST_DBNAME", "gotest")
-	netAddr = fmt.Sprintf("%s(%s)", prot, addr)
-	dsn = fmt.Sprintf("%s:%s@%s/%s?timeout=30s&strict=true", user, pass, netAddr, dbname)
-	logger.Println(dsn)
-	c, err := net.Dial(prot, addr)
-	if err == nil {
-		available = true
-		c.Close()
-		logger.Fatal("error on connect:%s", err.Error())
+
+	StartZ()
+	for _, tcase := range tcases {
+		Z(tcase.query)
 	}
+
+	time.Sleep(time.Second)
+
+	st := Status()
+	byt, err := json.Marshal(st)
+	if err != nil {
+		t.Error(err.Error())
+	} else {
+		println(string(byt))
+	}
+
+	StopZ()
+	StopZ()
 }
