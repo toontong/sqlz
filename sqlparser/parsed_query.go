@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"sqlz/sqlparser/sqltypes"
+	"github.com/toontong/sqlz/sqlparser/sqltypes"
 )
 
 type BindLocation struct {

@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"strings"
 
-	"sqlz/sqlparser/sqltypes"
+	"github.com/toontong/sqlz/sqlparser/sqltypes"
 )
 
 const EOFCHAR = 0x100

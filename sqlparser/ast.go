@@ -7,7 +7,7 @@ package sqlparser
 import (
 	"errors"
 
-	"sqlz/sqlparser/sqltypes"
+	"github.com/toontong/sqlz/sqlparser/sqltypes"
 )
 
 // Instructions for creating new types: If a type

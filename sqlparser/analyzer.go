@@ -9,7 +9,7 @@ package sqlparser
 import (
 	"fmt"
 
-	"sqlz/sqlparser/sqltypes"
+	"github.com/toontong/sqlz/sqlparser/sqltypes"
 )
 
 // GetDBName parses the specified DML and returns the

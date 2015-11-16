@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"sqlz/sqlparser"
+	"github.com/toontong/sqlz/sqlparser"
 )
 
 var (
@@ -40,7 +40,7 @@ type Count struct {
 	TableCount map[string]int64 //key is table name.
 }
 
-func newCount() *Count {
+func NewCount() *Count {
 	c := &Count{
 		TableCount: make(map[string]int64),
 	}
@@ -86,7 +86,7 @@ func (res *StatusResult) addOpration(typ SQL_Type, tableName string) {
 	if count, ok := z_result.Opration[typ]; ok {
 		count.add(tableName)
 	} else {
-		count = newCount()
+		count = NewCount()
 		count.add(tableName)
 		z_result.Opration[typ] = count
 	}
@@ -131,6 +131,9 @@ func StopZ() {
 }
 
 func Status() StatusResult {
+	if z_result == nil {
+		cleanStatus()
+	}
 	z_result.lock.Lock()
 	defer z_result.lock.Unlock()
 	z_result.Waiting = len(z_stackQuery)
@@ -144,6 +147,7 @@ func cleanStatus() {
 }
 
 func init() {
+	cleanStatus()
 	z_running = make(chan bool, 1)
 }
 
