@@ -161,63 +161,71 @@ func statistics() {
 			continue
 		}
 
-		stmt, err := sqlparser.Parse(query)
-		if err != nil {
-			z_result.Error++
-			continue
-		}
+		typ, table := ParseQuery(query)
 		if !z_open {
 			break
 		}
-		z_result.analyze(stmt)
+
+		if typ == ERROR_SQL {
+			z_result.Error++
+			continue
+		}
+		z_result.addOpration(typ, table)
 		z_result.Success++
 	}
 	z_running <- false
 }
 
-func (res *StatusResult) analyze(stmt sqlparser.Statement) {
+func ParseQuery(query string) (action SQL_Type, table string) {
+	// stmt sqlparser.Statement
+	stmt, err := sqlparser.Parse(query)
+	if err != nil {
+		return ERROR_SQL, string(UNKNOW)
+	}
 
 	switch sql := stmt.(type) {
 	case *sqlparser.Select:
+		action = SELECT
 		for _, tableExpr := range sql.From {
 			node, ok := tableExpr.(*sqlparser.AliasedTableExpr)
 			if !ok {
-				res.addOpration(SELECT, "")
+				table = string(UNKNOW)
 			} else {
-				res.addOpration(SELECT, sqlparser.GetTableName(node.Expr))
+				table = sqlparser.GetTableName(node.Expr)
 			}
 		}
 	case *sqlparser.Insert:
-		res.addOpration(INSERT, sqlparser.GetTableName(sql.Table))
+		action, table = INSERT, sqlparser.GetTableName(sql.Table)
 	case *sqlparser.Update:
-		res.addOpration(UPDATE, sqlparser.GetTableName(sql.Table))
+		action, table = UPDATE, sqlparser.GetTableName(sql.Table)
 	case *sqlparser.Delete:
-		res.addOpration(DELETE, sqlparser.GetTableName(sql.Table))
+		action, table = DELETE, sqlparser.GetTableName(sql.Table)
 	case *sqlparser.Show:
-		res.addOpration(SHOW, sql.Section)
+		action, table = SHOW, sql.Section
 	case *sqlparser.DDL:
-		var typ SQL_Type
+
 		var tableName []byte
 		switch sql.Action {
 		case sqlparser.AST_CREATE:
-			typ = CREATE
+			action = CREATE
 			tableName = sql.NewName
 		case sqlparser.AST_RENAME:
-			typ = RENAME
+			action = RENAME
 			tableName = sql.Table
 		case sqlparser.AST_DROP:
-			typ = DROP
+			action = DROP
 			tableName = sql.Table
 		case sqlparser.AST_ALTER:
-			typ = ALTER
+			action = ALTER
 			tableName = sql.Table
 		default:
-			typ = UNKNOW
+			action = UNKNOW
 		}
-		res.addOpration(typ, string(tableName))
+		table = string(tableName)
 	case nil:
-		res.addOpration(ERROR_SQL, "nil")
+		action, table = ERROR_SQL, "nil"
 	default:
-		res.addOpration(UNKNOW, "nil")
+		action, table = UNKNOW, "nil"
 	}
+	return action, table
 }
